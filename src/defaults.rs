@@ -33,6 +33,8 @@ pub struct LaunchDefaults {
 pub struct TasksDefaults {
     pub version: String,
     pub name: String,
+    #[serde(rename = "type")]
+    pub tasktype: String,
     pub command: String,
     pub args: vec::Vec<String>,
     pub is_default: bool,
@@ -107,6 +109,7 @@ impl ProjectDefaults {
             task_defaults: TasksDefaults {
                 version: String::new(),
                 name: String::new(),
+                tasktype: String::new(),
                 command: String::new(),
                 args: vec::Vec::new(),
                 is_default: true,
@@ -149,6 +152,7 @@ impl ProjectDefaults {
             task_defaults: TasksDefaults {
                 version: "2.0.0".into(),
                 name: "make binary".into(),
+                tasktype: "shell".into(),
                 command: "build".into(),
                 args: vec::Vec::new(),
                 is_default: true,

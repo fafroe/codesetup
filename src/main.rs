@@ -35,6 +35,18 @@ fn main() {
     let mut project_defaults = ProjectDefaults::new();
     project_defaults.load_defaults(&project_paths);
 
+    match std::fs::create_dir(project_paths.dot_vscode_dir.clone()) {
+        Err(e) => match e.kind() {
+            std::io::ErrorKind::AlreadyExists => (),
+            std::io::ErrorKind::PermissionDenied => (),
+            _ => {
+                println!("creating folder failed");
+                return;
+            },
+        },
+        Ok(_) => (),
+    }
+
     let mut launch_config = LaunchConfiguration::new();
     launch_config.executable = project_defaults.binary_path.clone();
     launch_config.device = project_defaults.controller;
@@ -48,12 +60,14 @@ fn main() {
     launch_file.version = project_defaults.launch_defaults.version;
     launch_file.create(&project_paths).unwrap();
 
-    let mut task_config = TaskConfiguration::new(project_defaults.task_defaults.is_default);
+    let mut task_config = TaskConfiguration::new();
+    task_config.group.is_default = project_defaults.task_defaults.is_default;
     task_config.args = project_defaults.task_defaults.args;
     task_config.command = project_defaults.task_defaults.command;
     task_config.label = project_defaults.task_defaults.name;
 
-    let mut task_file = TasksFile::new(vec!(task_config));
+    let mut task_file = TasksFile::new();
+    task_file.append_task(task_config);
     task_file.version = project_defaults.task_defaults.version;
     task_file.create(&project_paths).unwrap();
 
