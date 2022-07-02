@@ -76,6 +76,8 @@ impl ProjectDefaults {
             Ok(_) => (),
             Err(error) => panic!("could not write defaults.json: {:?}", error.kind()), 
         }
+
+        println!("Created defauls.json successfuly");
     }
 
     pub fn load_defaults(&mut self, project_paths: &ProjectPaths) {
