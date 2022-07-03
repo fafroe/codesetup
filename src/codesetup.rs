@@ -8,7 +8,16 @@ use crate::jlink::*;
 
 pub fn init(project_paths: &ProjectPaths) -> io::Result<()>{
     let mut project_defaults = ProjectDefaults::new();
-    project_defaults.load_defaults(&project_paths);
+    match project_defaults.load_defaults(&project_paths) {
+        Ok(_) => println!("Loading settings from defaults.json"),
+        Err(e) => match e.kind() {
+            io::ErrorKind::NotFound => {
+                println!("defaults.josn not found. Using new settings.");
+                project_defaults = ProjectDefaults::new_defaults();
+            }
+            _ => return Err(e),
+        }
+    }
 
     match std::fs::create_dir(project_paths.dot_vscode_dir.clone()) {
         Err(e) => match e.kind() {

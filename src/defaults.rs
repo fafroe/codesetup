@@ -69,22 +69,19 @@ impl ProjectDefaults {
 
         let json_string = match serde_json::to_string_pretty(&defaults) {
             Ok(data) => data,
-            Err(error) => panic!("Could not creat write string for defaults jason: {:?}", error),
+            Err(error) => panic!("Could not create string for defaults jason: {:?}", error),
         };
 
         match defaults_file.write_all( json_string.as_bytes() ) {
             Ok(_) => (),
-            Err(error) => panic!("could not write defaults.json: {:?}", error.kind()), 
+            Err(error) => panic!("could not write to defaults.json: {:?}", error.kind()), 
         }
 
         println!("Created defauls.json successfuly");
     }
 
-    pub fn load_defaults(&mut self, project_paths: &ProjectPaths) {
-        let defaults = match fs::read_to_string(project_paths.defaults_file.clone()) {
-            Ok(content) => content,
-            Err(err) => panic!("could not read from defaults.json: {:?}", err.kind()),
-        };
+    pub fn load_defaults(&mut self, project_paths: &ProjectPaths) -> std::io::Result<()> {
+        let defaults = fs::read_to_string(project_paths.defaults_file.clone())?;
 
         let  defaults: ProjectDefaults = serde_json::from_str(&defaults).unwrap();
 
@@ -93,6 +90,7 @@ impl ProjectDefaults {
         self.jlink_defaults  = defaults.jlink_defaults;
         self.launch_defaults = defaults.launch_defaults;
         self.task_defaults   = defaults.task_defaults;
+        Ok(())
     }
 
     pub fn new() -> ProjectDefaults {
