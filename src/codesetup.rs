@@ -59,3 +59,21 @@ pub fn init(project_paths: &ProjectPaths) -> io::Result<()>{
 pub fn install() {
     ProjectDefaults::create();
 }
+
+pub fn help(project_paths: &ProjectPaths) {
+    println!("Codesetup");
+    println!("\tenables easy code setup for ARM Cortex projects.\n");
+
+    println!("USAGE:");
+    println!("\tcodesetup [COMMAND]");
+    println!("");
+
+    println!("COMMANDS:");
+    println!("\t init\tsettting up actual project for VSCode");
+    println!("\t install\tcreats default files in homefolder/.codesetup");
+    println!("");
+
+    println!("SETTINGS LOCATION:");
+    println!("\t\"{}\"", &project_paths.codesetup_settings_dir.to_string_lossy());
+    println!("");
+}
