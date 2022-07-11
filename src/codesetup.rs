@@ -6,7 +6,7 @@ use crate::launch::*;
 use crate::tasks::*;
 use crate::jlink::*;
 
-pub fn init(project_paths: &ProjectPaths) -> io::Result<()>{
+pub fn init(project_paths: &ProjectPaths, controller: String) -> io::Result<()>{
     let mut project_defaults = ProjectDefaults::new();
     match project_defaults.load_defaults(&project_paths) {
         Ok(_) => println!("Loading settings from defaults.json"),
@@ -21,46 +21,55 @@ pub fn init(project_paths: &ProjectPaths) -> io::Result<()>{
 
     match std::fs::create_dir(project_paths.dot_vscode_dir.clone()) {
         Err(e) => match e.kind() {
-            std::io::ErrorKind::AlreadyExists => (),
+            io::ErrorKind::AlreadyExists => (),
             _ => return Err(e),
         },
         Ok(_) => (),
     }
 
-    let mut launch_config = LaunchConfiguration::new();
-    launch_config.executable      = project_defaults.controller_defaults[0].binary_path.clone();
-    launch_config.device          = project_defaults.controller_defaults[0].controller.clone();
-    launch_config.name            = project_defaults.controller_defaults[0].launch_defaults.launch_name.clone();
-    launch_config.interface       = project_defaults.controller_defaults[0].launch_defaults.interface.clone();
-    launch_config.pre_launch_task = project_defaults.controller_defaults[0].launch_defaults.prelaunch_task.clone();
-    launch_config.serverpath      = project_defaults.jlink_path.clone();
-
     let mut launch_file = LaunchFile::new();
-    launch_file.append_launch_config(launch_config);
-    launch_file.create(&project_paths)?;
-
-
-    let mut task_config = TaskConfiguration::new();
-    task_config.group.is_default = project_defaults.controller_defaults[0].task_defaults[0].is_default;
-    task_config.args             = project_defaults.controller_defaults[0].task_defaults[0].args.clone();
-    task_config.command          = project_defaults.controller_defaults[0].task_defaults[0].command.clone();
-    task_config.label            = project_defaults.controller_defaults[0].task_defaults[0].task_name.clone();
-
     let mut task_file = TasksFile::new();
-    task_file.append_task(task_config);
-    task_file.create(&project_paths)?;
+    let mut does_setting_exist = false;
 
+    for settings in &project_defaults.controller_defaults {
+        if settings.controller == controller {
+            does_setting_exist = true;
 
-    for default_jlinkfile in &project_defaults.controller_defaults[0].jlink_defaults {
-        let mut jlinkfile = JlinkFile::new();
-        jlinkfile.filename = default_jlinkfile.filename.clone();
-        for command in &default_jlinkfile.commands {
-            jlinkfile.commands.push( JlinkCommand::from_string(&command) );
+            let mut launch_config = LaunchConfiguration::new();
+            launch_config.executable      = settings.binary_path.clone();
+            launch_config.device          = settings.controller.clone();
+            launch_config.name            = settings.launch_defaults.launch_name.clone();
+            launch_config.interface       = settings.launch_defaults.interface.clone();
+            launch_config.pre_launch_task = settings.launch_defaults.prelaunch_task.clone();
+            launch_config.serverpath      = project_defaults.jlink_path.clone();
+            launch_file.append_launch_config(launch_config);
+            launch_file.create(&project_paths)?;
+
+            for task in &settings.task_defaults {
+                let mut task_config = TaskConfiguration::new();
+                task_config.group.is_default = task.is_default;
+                task_config.args             = task.args.clone();
+                task_config.command          = task.command.clone();
+                task_config.label            = task.task_name.clone();
+                task_file.append_task(task_config);
+            }
+            task_file.create(&project_paths)?;
+
+            for jlink_content in &settings.jlink_defaults {
+                let mut jlinkfile = JlinkFile::new();
+                jlinkfile.filename = jlink_content.filename.clone();
+                for command in &jlink_content.commands {
+                    jlinkfile.commands.push( JlinkCommand::from_string(&command) );
+                }
+                jlinkfile.create(&project_paths)?;
+            }
         }
-        jlinkfile.create(&project_paths)?;
     }
 
-    println!("Codesetup init done.");
+    if does_setting_exist == false {
+        return Err(io::Error::from(io::ErrorKind::NotFound));
+    }
+
     Ok(())
 }
 
@@ -73,7 +82,7 @@ pub fn help(project_paths: &ProjectPaths) {
     println!("\tenables easy code setup for ARM Cortex projects.\n");
 
     println!("USAGE:");
-    println!("\tcodesetup [COMMAND]");
+    println!("\tcodesetup [COMMAND] [PARAMS]");
     println!("");
 
     println!("COMMANDS:");
