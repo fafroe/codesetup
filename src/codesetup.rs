@@ -28,34 +28,32 @@ pub fn init(project_paths: &ProjectPaths) -> io::Result<()>{
     }
 
     let mut launch_config = LaunchConfiguration::new();
-    launch_config.executable = project_defaults.binary_path.clone();
-    launch_config.device = project_defaults.controller;
-    launch_config.name = project_defaults.launch_defaults.launch_name;
-    launch_config.interface = project_defaults.launch_defaults.interface;
-    launch_config.servertype = project_defaults.launch_defaults.server_type;
-    launch_config.serverpath = project_defaults.launch_defaults.server_path;
-    launch_config.pre_launch_commands = project_defaults.launch_defaults.prelaunch_commands;
+    launch_config.executable      = project_defaults.controller_defaults[0].binary_path.clone();
+    launch_config.device          = project_defaults.controller_defaults[0].controller.clone();
+    launch_config.name            = project_defaults.controller_defaults[0].launch_defaults.launch_name.clone();
+    launch_config.interface       = project_defaults.controller_defaults[0].launch_defaults.interface.clone();
+    launch_config.pre_launch_task = project_defaults.controller_defaults[0].launch_defaults.prelaunch_task.clone();
+    launch_config.serverpath      = project_defaults.jlink_path.clone();
 
-    let mut launch_file = LaunchFile::new(vec!(launch_config));
-    launch_file.version = project_defaults.launch_defaults.version;
+    let launch_file = LaunchFile::new(vec!(launch_config));
     launch_file.create(&project_paths)?;
 
+
     let mut task_config = TaskConfiguration::new();
-    task_config.group.is_default = project_defaults.task_defaults.is_default;
-    task_config.args = project_defaults.task_defaults.args;
-    task_config.command = project_defaults.task_defaults.command;
-    task_config.tasktype = project_defaults.task_defaults.tasktype;
-    task_config.label = project_defaults.task_defaults.name;
+    task_config.group.is_default = project_defaults.controller_defaults[0].task_defaults[0].is_default;
+    task_config.args             = project_defaults.controller_defaults[0].task_defaults[0].args.clone();
+    task_config.command          = project_defaults.controller_defaults[0].task_defaults[0].command.clone();
+    task_config.label            = project_defaults.controller_defaults[0].task_defaults[0].task_name.clone();
 
     let mut task_file = TasksFile::new();
     task_file.append_task(task_config);
-    task_file.version = project_defaults.task_defaults.version;
     task_file.create(&project_paths)?;
 
-    for default_jlinkfile in project_defaults.jlink_defaults {
+
+    for default_jlinkfile in &project_defaults.controller_defaults[0].jlink_defaults {
         let mut jlinkfile = JlinkFile::new();
-        jlinkfile.filename = default_jlinkfile.filename;
-        for command in default_jlinkfile.commands {
+        jlinkfile.filename = default_jlinkfile.filename.clone();
+        for command in &default_jlinkfile.commands {
             jlinkfile.commands.push( JlinkCommand::from_string(&command) );
         }
         jlinkfile.create(&project_paths)?;

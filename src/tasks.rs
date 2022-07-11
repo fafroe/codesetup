@@ -36,7 +36,7 @@ pub struct TaskGroup {
 impl TasksFile {
     pub fn new() -> TasksFile{
         TasksFile {
-            version: String::new(),
+            version: "2.0.0".into(),
             tasks: vec::Vec::new(),
         }
     }
@@ -63,7 +63,7 @@ impl TaskConfiguration {
 
         TaskConfiguration {
             label: String::new(),
-            tasktype: String::new(),
+            tasktype: "shell".into(),
             command: String::new(),
             args: Vec::new(),
             group: tempgroup,

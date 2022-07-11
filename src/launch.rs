@@ -34,7 +34,7 @@ pub struct LaunchConfiguration {
     #[serde(rename = "showDevDebugOutput")]
     pub show_dev_debug_output: String,
     #[serde(rename = "preLaunchCommands")]
-    pub pre_launch_commands: Vec<String>,
+    pub pre_launch_task: String,
 }
 
 #[allow(dead_code)]
@@ -83,12 +83,12 @@ impl LaunchConfiguration {
             cwd: "${workspacefolder}".into(),
             executable: ".build/out.bin".into(),
             serverpath: String::new(),
-            servertype: String::new(),
+            servertype: "jlink".into(),
             interface: String::new(),
             device: String::new(),
             run_to_entry_point: "main".into(),
             show_dev_debug_output: "none".into(),
-            pre_launch_commands: vec!(String::new()),
+            pre_launch_task: String::new(),
         }
     }
 }

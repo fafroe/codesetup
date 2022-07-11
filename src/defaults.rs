@@ -10,31 +10,32 @@ use crate::paths::*;
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ProjectDefaults {
+    pub jlink_path: String,
+    pub controller_defaults: vec::Vec<ControllerDefaults>,
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ControllerDefaults {
     pub controller: String,
     pub binary_path: String,
     pub launch_defaults: LaunchDefaults,
-    pub task_defaults: TasksDefaults,
+    pub task_defaults: vec::Vec<TasksDefaults>,
     pub jlink_defaults: vec::Vec<JlinkDefaults>,
 }
 
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LaunchDefaults {
-    pub version: String,
     pub launch_name: String,
-    pub server_type: String,
-    pub server_path: String,
     pub interface: String,
-    pub prelaunch_commands: vec::Vec<String>,
+    pub prelaunch_task: String,
 }
 
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TasksDefaults {
-    pub version: String,
-    pub name: String,
-    #[serde(rename = "type")]
-    pub tasktype: String,
+    pub task_name: String,
     pub command: String,
     pub args: vec::Vec<String>,
     pub is_default: bool,
@@ -85,35 +86,15 @@ impl ProjectDefaults {
 
         let  defaults: ProjectDefaults = serde_json::from_str(&defaults).unwrap();
 
-        self.binary_path     = defaults.binary_path;
-        self.controller      = defaults.controller;
-        self.jlink_defaults  = defaults.jlink_defaults;
-        self.launch_defaults = defaults.launch_defaults;
-        self.task_defaults   = defaults.task_defaults;
+        self.jlink_path             = defaults.jlink_path;
+        self.controller_defaults    = defaults.controller_defaults;
         Ok(())
     }
 
     pub fn new() -> ProjectDefaults {
         let defaults = ProjectDefaults {
-            binary_path: String::new(),
-            controller: String::new(),
-            jlink_defaults: vec::Vec::new(),
-            launch_defaults: LaunchDefaults {
-                interface: String::new(),
-                server_path: String::new(),
-                server_type: String::new(),
-                launch_name: String::new(),
-                prelaunch_commands: vec::Vec::new(),
-                version: String::new(),
-            },
-            task_defaults: TasksDefaults {
-                version: String::new(),
-                name: String::new(),
-                tasktype: String::new(),
-                command: String::new(),
-                args: vec::Vec::new(),
-                is_default: true,
-            },
+            jlink_path: String::new(),
+            controller_defaults: vec::Vec::new(),
         };
 
         defaults
@@ -121,44 +102,45 @@ impl ProjectDefaults {
 
     pub fn new_defaults() -> ProjectDefaults {
         let defaults = ProjectDefaults {
-            binary_path: "debug/out.bin".into(),
-            controller: "generic".into(),
-            jlink_defaults: vec!(
-                JlinkDefaults {
-                    filename: "erase".into(),
-                    commands: vec!(
-                        "Erase".into(),
-                        "Sleep 100".into(),
-                        "Exit".into()
+            jlink_path: "C:/Program Files (x86)/SEGGER/JLink/JLinkGDBServerCL.exe".into(),
+            controller_defaults: vec!(
+                ControllerDefaults {
+                    controller: "generic".into(),
+                    binary_path: "debug/out.elf".into(),
+                    jlink_defaults: vec!(
+                        JlinkDefaults {
+                            filename: "erase".into(),
+                            commands: vec!(
+                                "Erase".into(),
+                                "Sleep 100".into(),
+                                "Exit".into()
+                            ),
+                        },
+                        JlinkDefaults {
+                            filename: "flash".into(),
+                            commands: vec!(
+                                "Flash debug/out.elf".into(),
+                                "Sleep 100".into(),
+                                "Exit".into()
+                            ),
+                        }
                     ),
+                    launch_defaults: LaunchDefaults {
+                        interface: "swd".into(),
+                        launch_name: "Debug with Jlink/GDB".into(),
+                        prelaunch_task: "make".into(),
+                    },
+                    task_defaults: vec!(
+                        TasksDefaults {
+                            task_name: "make binary".into(),
+                            command: "make".into(),
+                            args: vec::Vec::new(),
+                            is_default: true,
+                        },
+                    )
                 },
-                JlinkDefaults {
-                    filename: "flash".into(),
-                    commands: vec!(
-                        "Flash somthing.elf".into(),
-                        "Sleep 100".into(),
-                        "Exit".into()
-                    ),
-                }
-            ),
-            launch_defaults: LaunchDefaults {
-                interface: "swd".into(),
-                server_path: "C:/Program Files (x86)/SEGGER/JLink/JLinkGDBServerCL.exe".into(),
-                server_type: "jlink".into(),
-                launch_name: "Debug with Jlink/GDB".into(),
-                prelaunch_commands: vec!("make".into()),
-                version: "0.2.0".into(),
-            },
-            task_defaults: TasksDefaults {
-                version: "2.0.0".into(),
-                name: "make binary".into(),
-                tasktype: "shell".into(),
-                command: "build".into(),
-                args: vec::Vec::new(),
-                is_default: true,
-            },
+            )
         };
-
         defaults
     }
 

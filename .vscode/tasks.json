@@ -3,9 +3,9 @@
 	"tasks": [
 		{
 			"type": "shell",
-			"command": "cargo run",
+			"command": "cargo build",
 			"args": [],
-			"label": "rust: cargo run",
+			"label": "rust: cargo build",
 			"group": {
 				"kind": "build",
 				"isDefault": true
