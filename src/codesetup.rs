@@ -35,7 +35,8 @@ pub fn init(project_paths: &ProjectPaths) -> io::Result<()>{
     launch_config.pre_launch_task = project_defaults.controller_defaults[0].launch_defaults.prelaunch_task.clone();
     launch_config.serverpath      = project_defaults.jlink_path.clone();
 
-    let launch_file = LaunchFile::new(vec!(launch_config));
+    let mut launch_file = LaunchFile::new();
+    launch_file.append_launch_config(launch_config);
     launch_file.create(&project_paths)?;
 
 

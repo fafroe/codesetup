@@ -39,12 +39,15 @@ pub struct LaunchConfiguration {
 
 #[allow(dead_code)]
 impl LaunchFile {
-    //set default Values
-    pub fn new(configs: vec::Vec<LaunchConfiguration>) -> LaunchFile{
+    pub fn new() -> LaunchFile{
         LaunchFile {
             version: "0.2.0".into(),
-            configurations: configs,
+            configurations: vec::Vec::new(),
         }
+    }
+
+    pub fn append_launch_config(&mut self, launch_config: LaunchConfiguration) {
+        self.configurations.push(launch_config);
     }
 
     pub fn create(&self, project_paths: &ProjectPaths) -> io::Result<File> {
@@ -74,7 +77,6 @@ impl LaunchFile {
 
 #[allow(dead_code)]
 impl LaunchConfiguration {
-    // set default Values
     pub fn new() -> LaunchConfiguration{
         LaunchConfiguration {
             name: String::new(),
