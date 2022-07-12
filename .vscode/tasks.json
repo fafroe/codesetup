@@ -12,6 +12,25 @@
 			}
 		},
 		{
+			"label": "create applications",
+			"dependsOn": [
+				"create linux app",
+				"create windows app",
+			],
+		},
+		{
+			"label": "create linux app",
+			"type": "shell",
+			"command": "cp ./target/release/codesetup ./app/linux/codesetup",
+			"dependsOn": "rust: release linux",
+		},
+		{
+			"label": "create windows app",
+			"type": "shell",
+			"command": "cp ./target/x86_64-pc-windows-gnu/release/codesetup.exe ./app/windows/codesetup.exe",
+			"dependsOn": "rust: release windows",
+		},
+		{
 			"type": "shell",
 			"command": "cargo build --release",
 			"args": [],

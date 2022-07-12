@@ -101,8 +101,13 @@ impl ProjectDefaults {
     }
 
     pub fn new_defaults() -> ProjectDefaults {
+        let os_depnedend_jlink_path = match std::env::consts::FAMILY {
+            "windows" => String::from("C:\\Program Files (x86)\\SEGGER\\JLink\\JLinkGDBServerCL.exe"),
+            _ => String::from("/opt/SEGGER/JLink/JLinkGDBServerCLExe")
+        };
+
         let defaults = ProjectDefaults {
-            jlink_path: "C:/Program Files (x86)/SEGGER/JLink/JLinkGDBServerCL.exe".into(),
+            jlink_path: os_depnedend_jlink_path,
             controller_defaults: vec!(
                 ControllerDefaults {
                     controller: "generic".into(),
@@ -111,16 +116,24 @@ impl ProjectDefaults {
                         JlinkDefaults {
                             filename: "erase".into(),
                             commands: vec!(
-                                "Erase".into(),
+                                "Reset".into(),
                                 "Sleep 100".into(),
+                                "Erase".into(),
                                 "Exit".into()
                             ),
                         },
                         JlinkDefaults {
                             filename: "flash".into(),
                             commands: vec!(
-                                "Flash debug/out.elf".into(),
+                                "Reset".into(),
                                 "Sleep 100".into(),
+                                "Erase".into(),
+                                "Sleep 100".into(),
+                                "LoadFile debug/out.elf".into(),
+                                "Sleep 100".into(),
+                                "Reset".into(),
+                                "Sleep 100".into(),
+                                "Go".into(),
                                 "Exit".into()
                             ),
                         }
