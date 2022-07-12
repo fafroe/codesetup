@@ -21,6 +21,7 @@ fn main() {
                 match codesetup::init(&project_paths, args[2].clone()) {
                     Err(err) => match err.kind() {
                         std::io::ErrorKind::NotFound => println!("Error: Could not find controller settings: {}", args[2]),
+                        std::io::ErrorKind::InvalidData => println!("Error: Invalid data while reading defaults.json: {}", err),
                         _ => panic!("Error: Failed to init project: {}", err),
                     }
                     _ => println!("Codesetp using {} settings for init.", args[2]),

@@ -84,7 +84,7 @@ impl ProjectDefaults {
     pub fn load_defaults(&mut self, project_paths: &ProjectPaths) -> std::io::Result<()> {
         let defaults = fs::read_to_string(project_paths.defaults_file.clone())?;
 
-        let  defaults: ProjectDefaults = serde_json::from_str(&defaults).unwrap();
+        let  defaults: ProjectDefaults = serde_json::from_str(&defaults)?;
 
         self.jlink_path             = defaults.jlink_path;
         self.controller_defaults    = defaults.controller_defaults;
